@@ -54,6 +54,15 @@ def verify(base):
                    "json" in content_type.lower() and api.get("service") == "GrowthAudit Pro"))
     checks.append(("API route same-origin", urlsplit(final_url).hostname == parts.hostname))
 
+    if status != 200:
+        for endpoint in ("/api/growth_audit", "/api/growth_audit.py", "/api/growth-audit",
+                         "/api/growth-audit/health", "/growth-audit-api/health"):
+            try:
+                s, b, mime, _ = fetch(base, endpoint, timeout=8)
+                print(f"INFO: alternate {endpoint}: HTTP {s}, MIME={mime.split(';')[0]}", flush=True)
+            except (URLError, TimeoutError, OSError) as exc:
+                print(f"INFO: alternate {endpoint}: unavailable ({type(exc).__name__})", flush=True)
+
     # Safety contract: the API must reject a loopback target, not fetch it.
     invalid = json.dumps({"url": "http://127.0.0.1/"}).encode()
     status, data, _, _ = fetch(base, "/growth-audit-api", method="POST", payload=invalid)
