@@ -1,0 +1,21 @@
+name: GrowthAudit Pro — live deployment contract
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # Daily: catch broken public routing without running third-party audits.
+    - cron: "37 5 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  production-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Public frontend, assets and same-origin API security contract
+        run: python3 scripts/check_live_growth_audit.py --base https://www.nextgentechdev.com
