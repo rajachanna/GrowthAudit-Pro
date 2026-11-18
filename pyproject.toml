@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "growth-audit-pro"
+version = "0.1.0"
+description = "Privacy-conscious public website technical audit with pinned DNS, source-backed findings and downloadable reports"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "NextGen Tech Solutions" }]
+keywords = ["seo", "website-audit", "ssrf", "technical-seo", "conversion", "web-development"]
+
+[project.scripts]
+growth-audit = "growthaudit.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["growthaudit*"]
