@@ -49,6 +49,7 @@ def verify(base):
         api = json.loads(data)
     except ValueError:
         api = {}
+    print(f"INFO: API GET status={status}, mime={content_type.split(';')[0]}, json_keys={sorted(api.keys())[:8]}", flush=True)
     checks.append(("API GET returns service JSON", status == 200 and
                    "json" in content_type.lower() and api.get("service") == "GrowthAudit Pro"))
     checks.append(("API route same-origin", urlsplit(final_url).hostname == parts.hostname))
@@ -60,6 +61,7 @@ def verify(base):
         rejected = json.loads(data)
     except ValueError:
         rejected = {}
+    print(f"INFO: API POST rejected status={status}, error={rejected.get('error', 'none')}", flush=True)
     checks.append(("Loopback target rejected", status == 400 and
                    rejected.get("error") == "unsafe_or_restricted"))
 
