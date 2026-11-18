@@ -4,9 +4,31 @@
 
 [![CI](https://github.com/rajachanna/GrowthAudit-Pro/actions/workflows/ci.yml/badge.svg)](https://github.com/rajachanna/GrowthAudit-Pro/actions/workflows/ci.yml)
 
-Live tool: **https://www.nextgentechdev.com/growth-audit**
+Public dashboard: **https://www.nextgentechdev.com/growth-audit** (scanner API deployment currently **not healthy**; see status below).
 
 [NextGen Tech Solutions](https://www.nextgentechdev.com/) · [Security model](SECURITY.md) · [Engineering case study](docs/CASE_STUDY.md)
+
+## Production status (verified 2026-11-18 UTC)
+
+The live `/growth-audit` page, JS and CSS return HTTP 200. The production
+`/growth-audit-api` scanner endpoint returns **HTTP 404**, so the free scan
+button **does not currently work end-to-end**. A direct request to the Python
+source path returned a static octet-stream response instead of running a
+serverless handler; this points to production routing/build/runtime configuration
+or a deployment ownership mismatch, **not** a passing API deployment.
+The original code and regression test suite pass CI, but that is not production proof.
+
+The [production contract workflow](.github/workflows/production-contract.yml)
+tests the public frontend, API JSON contract and loopback-target rejection on
+every push and daily. It currently fails intentionally while the API is broken;
+the workflow is a detector, **not** a substitute for fixing the deployment.
+
+The repo includes a [standalone Vercel config](vercel.json) that maps static
+assets and Python serverless routes. A request to create a separate Vercel
+project under team `raja-8b55` was denied with **403 Forbidden** by the
+connected Vercel account. No separate deployment was created. The public
+NextGen website may be owned by another Vercel account; confirm the actual
+production project's build settings before changing its routing.
 
 ## What is implemented
 
