@@ -4,31 +4,40 @@
 
 [![CI](https://github.com/rajachanna/GrowthAudit-Pro/actions/workflows/ci.yml/badge.svg)](https://github.com/rajachanna/GrowthAudit-Pro/actions/workflows/ci.yml)
 
-Public dashboard: **https://www.nextgentechdev.com/growth-audit** (scanner API deployment currently **not healthy**; see status below).
+Live tool: **https://www.nextgentechdev.com/growth-audit**
 
-[NextGen Tech Solutions](https://www.nextgentechdev.com/) · [Security model](SECURITY.md) · [Engineering case study](docs/CASE_STUDY.md)
+[NextGen Tech Solutions](https://www.nextgentechdev.com/) · [Security model](SECURITY.md) · [Engineering case study](docs/CASE_STUDY.md) · [Integration notes](docs/PRODUCTION-INTEGRATION.md)
 
-## Production status (verified 2026-11-18 UTC)
+## Production status (verified 2026-11-19 UTC)
 
-The live `/growth-audit` page, JS and CSS return HTTP 200. The production
-`/growth-audit-api` scanner endpoint returns **HTTP 404**, so the free scan
-button **does not currently work end-to-end**. A direct request to the Python
-source path returned a static octet-stream response instead of running a
-serverless handler; this points to production routing/build/runtime configuration
-or a deployment ownership mismatch, **not** a passing API deployment.
-The original code and regression test suite pass CI, but that is not production proof.
+**The live audit API is working.** The public dashboard, CSS and JavaScript all
+returned HTTP 200. The live `/growth-audit-api` endpoint returned its JSON
+service contract and rejected a loopback IP target with HTTP 400. A real POST
+to `https://www.python.org/` returned HTTP 200 and **17 measured HTML/HTTP
+check findings**, with six items for review in that one run. The site's main
+backend `/health` also remained healthy after the integration.
+
+### What fixed the outage
+
+The earlier production Vercel configuration served the Python source as a
+static file instead of executing the function. The scanner was mounted in
+the existing, already-running NextGen FastAPI backend on the user's Oracle
+server using [`integrations/nextgen_fastapi.py`](integrations/nextgen_fastapi.py).
+The public website's `/growth-audit-api` rewrite now forwards requests to
+`https://api.nextgentechdev.com/api/growth-audit`, preserving the same-origin
+browser API, the other NextGen routes and the report-download UI.
 
 The [production contract workflow](.github/workflows/production-contract.yml)
-tests the public frontend, API JSON contract and loopback-target rejection on
-every push and daily. It currently fails intentionally while the API is broken;
-the workflow is a detector, **not** a substitute for fixing the deployment.
+checks the live frontend, script/styles, JSON API and blocked-target rejection
+on every push and daily. Monitoring is not a guarantee of uninterrupted uptime;
+keep the upstream rate limiter and Cloudflare security protections enabled.
 
-The repo includes a [standalone Vercel config](vercel.json) that maps static
-assets and Python serverless routes. A request to create a separate Vercel
-project under team `raja-8b55` was denied with **403 Forbidden** by the
-connected Vercel account. No separate deployment was created. The public
-NextGen website may be owned by another Vercel account; confirm the actual
-production project's build settings before changing its routing.
+**Repository ownership:** GrowthAudit Pro source and tests are maintained
+here under `rajachanna/GrowthAudit-Pro`. The deployed NextGen public website
+currently has a separate integration repository; migrate that website to
+Raja's account separately when deployment ownership and DNS are coordinated.
+Do not confuse Vercel source publication with a standalone GrowthAudit deployment
+(the connected Vercel account denied standalone project creation with 403).
 
 ## What is implemented
 
